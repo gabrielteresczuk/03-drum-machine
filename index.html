@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+
+    <script src="https://kit.fontawesome.com/4eec790ce9.js" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="style.css">    
+
+    
+
+    <title>Document</title>
+</head>
+<body>
+
+    <div id="app">
+
+       <!-- <div id="drum-machine">
+            <div class="drum-cont">
+
+                <div class="drum-pad">Q</div>
+                <div class="drum-pad">W</div>
+                <div class="drum-pad">E</div>
+                <div class="drum-pad">A</div>
+                <div class="drum-pad">S</div>
+                <div class="drum-pad">D</div>
+                <div class="drum-pad">Z</div>
+                <div class="drum-pad">X</div>
+                <div class="drum-pad">C</div>
+
+            </div>
+            <div class="controls">
+                <div>
+                    CONTROLS
+                </div>
+                <div class="c_power">
+                    <label class="switch">
+                        <input type="checkbox">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div id="display">
+                    display
+                </div>
+                <div class="c_volumen">
+                    <input type="range" min="1" max="100">
+                </div>
+                <div class="c_bank">
+                    <label class="switch">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                      </label>
+                </div>
+            </div>
+
+
+        </div>-->
+
+    </div>
+
+
+    <script type="text/babel">
+
+const datos = [
+  {
+    keyCode: 81,
+    keyTrigger: 'Q',
+    id: 'Heater-1',
+    url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-1.mp3'
+  },
+  {
+    keyCode: 87,
+    keyTrigger: 'W',
+    id: 'Heater-2',
+    url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-2.mp3'
+  },
+  {
+    keyCode: 69,
+    keyTrigger: 'E',
+    id: 'Heater-3',
+    url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-3.mp3'
+  },
+  {
+    keyCode: 65,
+    keyTrigger: 'A',
+    id: 'Heater-4',
+    url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-4_1.mp3'
+  },
+  {
+    keyCode: 83,
+    keyTrigger: 'S',
+    id: 'Clap',
+    url: 'https://s3.amazonaws.com/freecodecamp/drums/Heater-6.mp3'
+  },
+  {
+    keyCode: 68,
+    keyTrigger: 'D',
+    id: 'Open-HH',
+    url: 'https://s3.amazonaws.com/freecodecamp/drums/Dsc_Oh.mp3'
+  },
+  {
+    keyCode: 90,
+    keyTrigger: 'Z',
+    id: "Kick-n'-Hat",
+    url: 'https://s3.amazonaws.com/freecodecamp/drums/Kick_n_Hat.mp3'
+  },
+  {
+    keyCode: 88,
+    keyTrigger: 'X',
+    id: 'Kick',
+    url: 'https://s3.amazonaws.com/freecodecamp/drums/RP4_KICK_1.mp3'
+  },
+  {
+    keyCode: 67,
+    keyTrigger: 'C',
+    id: 'Closed-HH',
+    url: 'https://s3.amazonaws.com/freecodecamp/drums/Cev_H2.mp3'
+  }
+];
+
+
+class Button extends React.Component{
+    constructor(props){
+        super(props);
+
+        this.playSound = this.playSound.bind(this);
+        this.handleKeyPress = this.handleKeyPress.bind(this);
+    }
+
+    handleKeyPress(e) {
+        if (this.props.power){
+            if (e.keyCode === this.props.keyCode) {
+            this.playSound();
+            }
+        }
+    }
+
+    componentDidMount() {
+        document.addEventListener('keydown', this.handleKeyPress);
+    }
+    componentWillUnmount() {
+        document.removeEventListener('keydown', this.handleKeyPress);
+    }
+
+    playSound() {
+        if (this.props.power){
+            const sound = document.getElementById(this.props.keyTrigger);
+            sound.currentTime = 0;
+            sound.volume=this.props.volume/100;
+            sound.play();
+            this.props.updateDisplay(this.props.clipId.replace(/-/g, ' '));
+        }
+    }
+
+    render(){
+        let clase = "";
+        if(this.props.power){
+            clase="drum-pad powerOn";
+        }else{
+            clase="drum-pad powerOff"; 
+        }
+
+        return(
+            <div
+            className={clase}
+            id={this.props.clipId}
+            onClick={this.playSound}
+            >
+            <audio
+            className='clip'
+            id={this.props.keyTrigger}
+            src={this.props.clip}
+            />
+            {this.props.keyTrigger}
+        </div>
+        );
+
+    }
+}
+
+class Pad extends React.Component{
+    constructor(props){
+        super(props);
+    }
+
+    render(){
+
+        let arrayDatos;
+
+        arrayDatos = this.props.datos.map((drumObj, i, padBankArr) => {
+        return (
+            
+          <Button
+            clip={padBankArr[i].url}
+            clipId={padBankArr[i].id}
+            keyCode={padBankArr[i].keyCode}
+            keyTrigger={padBankArr[i].keyTrigger}
+            updateDisplay={this.props.updateDisplay}
+            power={this.props.power}
+            volume={this.props.volume}
+          />
+        );
+        });
+
+        return (
+            <div className="drum-cont">
+                {arrayDatos}
+            </div>
+        );
+
+    }
+}
+
+class Controls extends React.Component{
+    constructor(props){
+        super(props);
+    }
+
+    render(){
+        return(
+            <div className="controls">
+                <div>
+                    CONTROLS
+                </div>
+                <div className="c_power">
+                    <label className="switch">
+                        <input type="checkbox"
+                        defaultChecked={this.props.power}
+                        onClick={this.props.handlePower}/>
+                        <span className="slider round"></span>
+                    </label>
+                </div>
+                <div id="display">
+                    {this.props.display}
+                </div>
+                <div className="c_volumen">
+                    <input type="range" min="1" max="100" 
+                    value={this.props.volume}
+                    onChange={this.props.handleVolume}
+                    />
+                </div>
+
+            </div>
+        );
+    }
+}
+
+class App extends React.Component{
+    constructor(props){
+        super(props);
+        this.state={
+            power: true,
+            display: "Display",
+            datos: datos,
+            volume: 50
+        }
+        this.displayClipName = this.displayClipName.bind(this);
+        this.clearDisplay = this.clearDisplay.bind(this);
+        this.handlePower = this.handlePower.bind(this);
+        this.handleVolume = this.handleVolume.bind(this);
+    }
+
+    displayClipName(name) {
+    if (this.state.power) {
+      this.setState({
+        display: name
+      });
+    }
+  }
+  clearDisplay() {
+    this.setState({
+      display: "-"
+    });
+  }
+
+  handlePower(event){
+
+    if(event.target.checked){
+      this.setState({
+      power:true,
+      display: "ON"
+    });
+    }else{
+      this.setState({
+      power:false,
+      display: "OFF"
+    });
+    }
+
+  }
+  handleVolume(event) {
+    this.setState({
+      volume: event.target.value,
+      display:event.target.value
+    });
+  }
+
+
+    render(){
+        return(
+            <div id="drum-machine">
+            <Pad 
+            datos={this.state.datos}
+            updateDisplay={this.displayClipName}
+            power={this.state.power}
+            volume={this.state.volume}
+            />
+            <Controls
+            display={this.state.display}
+            power={this.state.power}
+            handlePower={this.handlePower}
+            volume={this.state.volume}
+            handleVolume={this.handleVolume}
+            />
+            </div>
+        );
+    }
+}
+
+
+
+      ReactDOM.render(<App />, document.getElementById('app'))
+
+     </script>
+    
+</body>
+</html>
